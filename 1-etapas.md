@@ -19,37 +19,38 @@ Kursinio darbo I dalis: projektavimo dokumentas
 | Funkcija | Ką naudotojas galės atlikti | Pagrindinis modulis ar pagalbinė funkcija |
 |---|---|---|
 | Peržiūra | Galimybė greitai peržiūrėti žaidimų tūrinį programos viduje | Pagrindinis modulis |
-| Eksportavimas | Galimybė žaidimų tūrinį eksportuoti patogiais formatais naudojimui kitose vietose | Pagalbinė funkcija |
-| Importavimas | Galimybė importuoti tūrinį iš patogaus formato | Pagalbinė funkcija |
+| Eksportavimas | Galimybė žaidimų tūrinį eksportuoti patogiais formatais naudojimui kitose vietose | Pagrindinis modulis |
+| Importavimas | Galimybė importuoti tūrinį iš patogaus formato | Pagrindinis modulis |
 | Redagavimas | Galimybė redaguoti žaidimo tūrinį norint pakeisti išvaizdą ar veikimą | Pagrindinis modulis |
 
 **Į kursinio darbo apimtį neįeina:** Failų nuskaitymo, rašymo, redagavimo logika, tam jau yra sukurta biblioteka
 
 ## 3. Pagrindinis modulis
 
-**Pavadinimas ir atsakomybė:** Ilgas Unity žaidimų variklio modifikacijų kūrimo procesas
+**Pavadinimas ir atsakomybė:** Importavimas/Eksportavimas, atsakingas už tūrinio importavimą/eksportavimą iš/į patogius formatus
 
-**Logika, kurią reikės projektuoti ir testuoti:** Reikia tikrinti ar importuojamo tūrinio variklio versijos sutampta su dabartiniu projektu, ar kintamujų tipai sutampa redaguojant. Tikrinama kaip išdėstyti kai kurių komponentų duomenys, kad jų redagavimas būtų atliktas teisingai
+**Logika, kurią reikės projektuoti ir testuoti:** 3d modelių, tekstūrų, garso, teksto tūrinio importavimas/ekportavimas
 
-**Įvestis:** Unity žaidimo tūrinio failai, pavyzdžiui sharedassets0.assets kuris laiko Unity žaidimų pirmos scenos vizualų tūrinį
+**Įvestis:** Vartotojo kurto tūrinio failas kuris yra importuojamas arba pasirinktas žaidimo tūrinis kuris yra eksportuojamas
 
-**Išvestis:** Unity žaidimo tūrinio failai, tai gali būti tas pats sharedassets0.assets failas su atliktomis modifikacijomis
+**Išvestis:** Žaidimo failas su importuotu vartotojo tūriniu arba tūrinio failas kuris eksportuotas iš žaidimo
 
-**Veikimo eiga:** Pasirenkama kūrį failą norima įkelti ir redaguoti, atliekami pakeitimai norimai modifikacijai sukurti, failas su pakeitimais yra išsaugomas ir gali būti naudojamas pakeisti žaidimo tūriniui
+**Veikimo eiga:** Norint importuoti vartotojo tūrinio failą pasirenkama kūrį žaidimo tūrinį norima pakeisti, patvirtinus importavimo veiksmą programa vartotojo tūrinio duomenis paverčia į reikiamą formatą ir pakeičia žaidimo tūrinį su naujais duomenimis. Norint eksportuoti žaidimo tūrinį pasirenkama kuris tūrinys turi būti eksportuojamas, pasirenkama į kur jį eksportuoti, tada programa duomenis paverčia į tokio tipo tūriniui būdingą formatą ir jį rašo į pasirinktą vietą
 
 ### Taisyklės arba sprendimo žingsniai
 
 1. Žaidimo tūrinys gali būti eksportuojamas jam įprastais formatais (pvz 3d modelis kaip .obj failas)
 2. Žaidimo tūrinys importuojamas iš jam įprastų formatų (pvz tekstūra kaip .png failas)
-3. Žaidimo tūrinys lengvai ir greitai redaguojamas keičiant reikalingus jo laukus
+3. Žaidimo tūrinys gali būti importuojamas/eksportuojamas kaip binary failas suteikiant galimybę dirbti sena darbo eiga.
+4. Žaidimo tūrinys gali būti importuojamas/eksportuojamas kaip json failas suteikiant galimybę dirbti sena darbo eiga.
 
 ### Scenarijai būsimiems testams
 
 | Scenarijus | Pradinės sąlygos ir konkreti įvestis | Veiksmas | Tikslus laukiamas rezultatas |
 |---|---|---|---|
-| Įprastas atvejis | Pasirenkamas žaidėjo greičio laukas ir įrašoma reikšmė 100 | Patvirtinamas keitimas | Reikšmė pakeičiama ir yra paruošta išsaugojimui |
-| Ribinis atvejis arba konfliktas | Pasirenkamas žaidėjo greičio laukas ir įrašoma reikšmė "ABC" | Patvirtinamas keitimas | Parodoma ispėjimas dėl bandymo įvesti String tipo reikšmę lauke kuris laiko skaičių ir prašoma įvesti kitą reikšmę |
-| Klaida arba neįmanomas rezultatas | Pasirenkamas žaidėjo greičio laukas ir įrašoma reikšmė 5000000000 | Patvirtinamas keitimas | Parodoma klaida, nes įvesta reikšmė yra didesnė nei keičiamo lauko didžiausia galima reikšmė |
+| Įprastas atvejis | Pasirinktas žaidimo 3d modelis ir bandomas pakeisti kitu 3d modeliu | Patvirtinamas keitimas | Modelis pakeičiamas ir žaidimo failas yra paruoštas išsaugojimui |
+| Ribinis atvejis arba konfliktas | Pasirinktas žaidimo 3d modelis ir jo vietoje bandoma importuoti neteisingai redaguotas json failas | Patvirtinamas keitimas | Jei json failą įmanoma teisingai nuskaityti duomenys vistiek yra įrašomi, tačiau naudojant šį tūrinį žaidime gali kilti problemų, pavyzdžiui jei json faile nurodyta, kad modelis turi naudoti 16-bitų indeksus, bet indeksų yra daugiau nei 2^16 |
+| Klaida arba neįmanomas rezultatas | Pasirinktas žaidimo 3d modelis ir jo vietoje bandoma importuoti kito tipo failas | Patvirtinamas keitimas | Parodoma klaida, nes pasirinktas failas negali būti nuskaitytas ir įrašytas kaip 3d modelis |
 
 **Jei modulis naudoja AI:** Netaikoma
 
@@ -61,7 +62,7 @@ Kursinio darbo I dalis: projektavimo dokumentas
 
 **Tikrinimo scenarijus ir sąlygos:** Kuriama pakankamai paprasta žaidimo modifikacija kuri pakeičia kelis skirtingus tūrinio tipus, tokius kaip 3d modeliai ir tekstūros
 
-**Sėkmės kriterijus:** Laikas sukurti modifikacijai matomai sumažėja tiek, kad to negalima skaityti kaip natūralaus skirtumo
+**Sėkmės kriterijus:** Laikas sukurti modifikacijai sumažėja bent dvigubai
 
 **Numatytas projektavimo sprendimas:** Būdai importuoti žaidimo tūrinį iš patogių formatų
 
