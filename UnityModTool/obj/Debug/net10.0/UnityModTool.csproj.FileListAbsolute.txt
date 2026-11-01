@@ -101,3 +101,4 @@
 /Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/obj/Debug/net10.0/UnityModTool.pdb
 /Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/obj/Debug/net10.0/UnityModTool.genruntimeconfig.cache
 /Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/obj/Debug/net10.0/ref/UnityModTool.dll
+/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/bin/Debug/net10.0/AssetsTools.NET.dll

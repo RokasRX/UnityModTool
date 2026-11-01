@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v10.0": {
       "UnityModTool/1.0.0": {
         "dependencies": {
+          "AssetsTools.NET": "3.0.5",
           "Avalonia": "12.1.4",
           "Avalonia.Desktop": "12.1.4",
           "Avalonia.Fonts.Inter": "12.1.4",
@@ -20,6 +21,14 @@
         },
         "runtime": {
           "UnityModTool.dll": {}
+        }
+      },
+      "AssetsTools.NET/3.0.5": {
+        "runtime": {
+          "lib/netstandard2.0/AssetsTools.NET.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.0.0.0"
+          }
         }
       },
       "Avalonia/12.1.4": {
@@ -663,6 +672,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "AssetsTools.NET/3.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-StvUj6ykBOSOdquRmpbjn6mfM7PyOCKdBB/Ed2Jn5aIhbfrl/Oz69tmgJEQCZdix7AZRVZin14/wytP2moJgAQ==",
+      "path": "assetstools.net/3.0.5",
+      "hashPath": "assetstools.net.3.0.5.nupkg.sha512"
     },
     "Avalonia/12.1.4": {
       "type": "package",

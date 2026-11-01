@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:UnityModTool.ViewModels"
+             x:Class="UnityModTool.Views.PropertiesView"
+             x:DataType="vm:ComponentPropertiesViewModel">
+    <Grid RowDefinitions="Auto, *">
+        <TextBlock Text="{Binding SelectedComponent.Name}"
+                   FontWeight="SemiBold"
+                   Margin="8,6" />
+        <TreeView Grid.Row="1"
+                  ItemsSource="{Binding Properties}">
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate DataType="vm:PropertyViewModel" ItemsSource="{Binding TreeChildren}">
+                    <Grid MinWidth="320">
+                        <Grid ColumnDefinitions="2*, 3*, Auto"
+                              IsVisible="{Binding IsPropertyRow}">
+                            <TextBlock Text="{Binding Name}"
+                                       VerticalAlignment="Center"
+                                       ToolTip.Tip="{Binding TypeName}" />
+                            <Grid Grid.Column="1">
+                                <TextBox Text="{Binding TextValue, Mode=TwoWay}"
+                                         IsVisible="{Binding IsText}"
+                                         ToolTip.Tip="{Binding ValidationMessage}"
+                                         MinWidth="120" />
+                                <CheckBox IsChecked="{Binding BooleanValue, Mode=TwoWay}"
+                                          IsVisible="{Binding IsBoolean}"
+                                          HorizontalAlignment="Left" />
+                                <NumericUpDown Value="{Binding NumberValue, Mode=TwoWay}"
+                                               IsVisible="{Binding IsNumber}"
+                                               Minimum="{Binding Minimum}"
+                                               Maximum="{Binding Maximum}"
+                                               Increment="1"
+                                               ShowButtonSpinner="True"
+                                               ToolTip.Tip="{Binding ValidationMessage}"
+                                               MinWidth="120" />
+                                <Border IsVisible="{Binding IsByteArrayPreview}"
+                                        Background="Transparent"
+                                        DragDrop.AllowDrop="True"
+                                        ToolTip.Tip="{Binding ValidationMessage}"
+                                        MaxWidth="520"
+                                        Margin="8,0,0,0">
+                                    <TextBlock Text="{Binding DisplayValue}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Opacity="0.7" />
+                                </Border>
+                                <TextBlock Text="{Binding DisplayValue}"
+                                           IsVisible="{Binding IsReadOnly}"
+                                           TextWrapping="Wrap"
+                                           MaxWidth="520"
+                                           Margin="8,0,0,0"
+                                           VerticalAlignment="Center"
+                                           Opacity="0.7" />
+                            </Grid>
+                            <Button Grid.Column="2"
+                                    Content="-"
+                                    IsVisible="{Binding IsArrayElement}"
+                                    Command="{Binding ActionCommand}"
+                                    ToolTip.Tip="Remove element"
+                                    Margin="4,0,0,0" />
+                        </Grid>
+                        <Button Content="{Binding ActionText}"
+                                IsVisible="{Binding IsAction}"
+                                Command="{Binding ActionCommand}"
+                                HorizontalAlignment="Left"
+                                Padding="8,2" />
+                    </Grid>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </Grid>
+</UserControl>

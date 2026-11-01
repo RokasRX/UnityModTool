@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:UnityModTool.ViewModels"
+             x:Class="UnityModTool.Views.SceneHierarchyView"
+             x:DataType="vm:SceneHierarchyViewModel">
+    <ListBox ItemsSource="{Binding Components}" SelectedItem="{Binding SelectedComponent, Mode=TwoWay}">
+        <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:ComponentViewModel">
+                <Grid ColumnDefinitions="*, *">
+                    <TextBlock Text="{Binding Name}"/>
+                    <TextBlock Text="{Binding PathID}" Grid.Column="1" TextAlignment="Right" />
+                </Grid>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</UserControl>

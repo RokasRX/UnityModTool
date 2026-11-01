@@ -7,32 +7,16 @@ build_property.AvaloniaNameGeneratorFilterByNamespace = *
 build_property.AvaloniaNameGeneratorViewFileNamingStrategy = NamespaceAndClassName
 build_property.AvaloniaNameGeneratorAttachDevTools = true
 build_property.AvaloniaUseCompiledBindingsByDefault = true
-build_property.AvaloniaUseCompiledBindingsByDefault = true
-build_property.AvaloniaMainPackageVersion = 12.1.4
 build_property.AvaloniaMainPackageVersion = 12.1.4
 build_property.AvaloniaPreviewerNetCoreToolPath = /Users/rokasmiliunas/.nuget/packages/avalonia/12.1.4/buildTransitive//../tools/net8.0/designer/Avalonia.Designer.HostApp.dll
-build_property.AvaloniaResourcePaths = /Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Assets/avalonia-logo.ico,/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/App.axaml,/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/MainWindow.axaml
-build_property.TargetFramework = net10.0
-build_property.TargetFramework = net10.0
-build_property.TargetFrameworkIdentifier = .NETCoreApp
-build_property.TargetFrameworkIdentifier = .NETCoreApp
-build_property.RuntimeIdentifier = 
-build_property.AppHostRuntimeIdentifier = osx-arm64
-build_property.DefaultAppHostRuntimeIdentifier = osx-arm64
-build_property.NETCoreSdkPortableRuntimeIdentifier = osx-arm64
-build_property.IsTestProject = 
-build_property.HasAvaloniaDiagnosticsSupport = true
-build_property._AvnB64ProjectAssetsFile = L1VzZXJzL3Jva2FzbWlsaXVuYXMvRG9jdW1lbnRzL1VuaXR5TW9kVG9vbC9Vbml0eU1vZFRvb2wvb2JqL3Byb2plY3QuYXNzZXRzLmpzb24=
-build_property._AvnB64ProjectDepsFilePath = 
-build_property._AvnB64ProjectRuntimeConfigFilePath = 
-build_property._AvnB64IntermediateOutputPath = b2JqXERlYnVnL25ldDEwLjAv
-build_property._AvnB64PublishDir = YmluXERlYnVnL25ldDEwLjAvcHVibGlzaC8=
-build_property._AvnB64AvaloniaPreviewerNetCoreToolPath = L1VzZXJzL3Jva2FzbWlsaXVuYXMvLm51Z2V0L3BhY2thZ2VzL2F2YWxvbmlhLzEyLjEuNC9idWlsZFRyYW5zaXRpdmUvLy4uL3Rvb2xzL25ldDguMC9kZXNpZ25lci9BdmFsb25pYS5EZXNpZ25lci5Ib3N0QXBwLmRsbA==
+build_property.AvaloniaResourcePaths = /Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Assets/avalonia-logo.ico,/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/App.axaml,/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/MainWindow.axaml,/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/OpenFilesView.axaml,/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/PropertiesView.axaml,/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/SceneHierarchyView.axaml
 build_property.MvvmToolkitEnableINotifyPropertyChangingSupport = true
 build_property._MvvmToolkitIsUsingWindowsRuntimePack = false
 build_property.CsWinRTComponent = 
 build_property.CsWinRTAotOptimizerEnabled = 
 build_property.CsWinRTAotWarningLevel = 
+build_property.TargetFramework = net10.0
+build_property.TargetFrameworkIdentifier = .NETCoreApp
 build_property.TargetFrameworkVersion = v10.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = 
@@ -53,4 +37,13 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/MainWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/OpenFilesView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/PropertiesView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/Users/rokasmiliunas/Documents/UnityModTool/UnityModTool/Views/SceneHierarchyView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

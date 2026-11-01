@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:UnityModTool.ViewModels"
+             x:Class="UnityModTool.Views.OpenFilesView"
+             x:DataType="vm:OpenFilesViewModel">
+    <Grid x:Name="DropTarget"
+          Background="Transparent"
+          DragDrop.AllowDrop="True">
+        <ListBox ItemsSource="{Binding Files}"
+                 SelectedItem="{Binding SelectedFile, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:AssetsFileViewModel">
+                    <TextBlock Text="{Binding Name}"
+                               ToolTip.Tip="{Binding FilePath}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>
