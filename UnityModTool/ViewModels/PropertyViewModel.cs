@@ -12,36 +12,29 @@ namespace UnityModTool.ViewModels;
 public sealed class PropertyViewModel : ViewModelBase
 {
     private const int BytePreviewLength = 128;
-    private const int BytePageSize = 128;
 
     private readonly AssetTypeValueField? _field;
+    private readonly AssetTypeValueField? _arrayField;
     private readonly Action _save;
     private readonly PropertyViewModel? _byteArrayOwner;
     private readonly Action? _remove;
     private decimal? _numberValue;
     private string? _textValue;
-    private string? _byteHexValue;
     private bool _booleanValue;
     private string? _validationMessage;
     private int _arrayIndex;
-    private int _loadedByteCount;
-    private bool _batchingChildren;
-    private PropertyViewModel? _vectorParent;
 
     private string BaseName { get; }
     private bool IsArrayItem { get; }
     public bool IsArrayAction { get; }
-    public bool IsLoadMoreAction { get; }
-    public bool IsAction => IsArrayAction || IsLoadMoreAction;
-    private int ByteIndex { get; set; }
+    public bool IsAction => IsArrayAction;
 
     public string Name => IsArrayItem
-        ? _byteArrayOwner is null ? $"[{_arrayIndex}]" : $"[{ByteIndex}]"
+        ? $"[{_arrayIndex}]"
         : IsVectorContainer || IsArray ? $"{BaseName} ({ArrayCount})" : BaseName;
 
     public string TypeName { get; }
     public ObservableCollection<PropertyViewModel> Children { get; } = [];
-    public ObservableCollection<PropertyViewModel> TreeChildren { get; } = [];
 
     public bool IsText => ValueType is AssetValueType.String or AssetValueType.Float or AssetValueType.Double;
     public bool IsBoolean => ValueType == AssetValueType.Bool;
@@ -50,22 +43,21 @@ public sealed class PropertyViewModel : ViewModelBase
     public bool IsReadOnly => (!IsEditable && !IsByteArrayPreview) || IsByteArray;
     public bool IsPropertyRow => !IsAction;
     public bool IsArrayElement => IsArrayItem;
-    public bool IsByteArrayElement => _byteArrayOwner is not null;
     public bool IsByteArrayPreview { get; }
     public bool IsArray { get; }
-    public bool IsByteArray => !IsByteArrayPreview
-        && _field?.TemplateField.ValueType == AssetValueType.ByteArray;
     private bool IsVectorContainer { get; }
+    public bool IsByteArray => !IsByteArrayPreview
+        && _arrayField?.TemplateField.ValueType == AssetValueType.ByteArray;
     public int ArrayCount => _byteArrayOwner is not null
         ? 0
-        : IsVectorContainer ? Children[0].ArrayCount
-        : IsByteArray ? _field!.AsByteArray.Length : Children.Count;
+        : IsByteArray ? _arrayField!.AsByteArray.Length
+        : IsArray ? _arrayField!.Children.Count : Children.Count;
     public decimal Minimum { get; }
     public decimal Maximum { get; }
     public string? DisplayValue => IsByteArrayPreview
         ? GetByteArrayPreview()
         : IsByteArray || IsEditable ? null : TypeName;
-    public string ActionText => IsArrayAction ? "Add element" : IsLoadMoreAction ? "Load next bytes" : "Remove";
+    public string ActionText => "Add element";
     public ICommand? ActionCommand { get; }
     public string? ValidationMessage
     {
@@ -80,7 +72,7 @@ public sealed class PropertyViewModel : ViewModelBase
         if (!IsByteArrayPreview)
             throw new InvalidOperationException("Only a TypelessData property preview can import file bytes.");
 
-        _byteArrayOwner!._field!.AsByteArray = bytes;
+        _byteArrayOwner!._arrayField!.AsByteArray = bytes;
         _byteArrayOwner._save();
         _byteArrayOwner.OnPropertyChanged(nameof(Name));
         _byteArrayOwner.OnPropertyChanged(nameof(ArrayCount));
@@ -94,9 +86,7 @@ public sealed class PropertyViewModel : ViewModelBase
             ValidationMessage = message;
     }
 
-    private AssetValueType ValueType => _byteArrayOwner is not null
-        ? AssetValueType.UInt8
-        : _field!.TemplateField.ValueType;
+    private AssetValueType ValueType => _field!.TemplateField.ValueType;
 
     public string? TextValue
     {
@@ -132,29 +122,6 @@ public sealed class PropertyViewModel : ViewModelBase
         }
     }
 
-    public string? ByteHexValue
-    {
-        get => _byteHexValue;
-        set
-        {
-            if (!SetProperty(ref _byteHexValue, value))
-                return;
-
-            var input = value ?? string.Empty;
-            if (input.Length is > 0 and <= 2
-                && input.All(Uri.IsHexDigit)
-                && byte.TryParse(input, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var byteValue))
-            {
-                _byteArrayOwner!.SetByte(ByteIndex, byteValue);
-                ValidationMessage = null;
-            }
-            else
-            {
-                ValidationMessage = "Enter one or two hexadecimal digits.";
-            }
-        }
-    }
-
     public bool BooleanValue
     {
         get => _booleanValue;
@@ -184,15 +151,8 @@ public sealed class PropertyViewModel : ViewModelBase
                 return;
             }
 
-            if (_byteArrayOwner is not null)
-            {
-                _byteArrayOwner.SetByte(ByteIndex, decimal.ToByte(value.Value));
-            }
-            else
-            {
-                SetNumericValue(value.Value);
-                _save();
-            }
+            SetNumericValue(value.Value);
+            _save();
 
             ValidationMessage = null;
         }
@@ -211,10 +171,13 @@ public sealed class PropertyViewModel : ViewModelBase
         _save = save;
         IsArrayItem = isArrayItem;
         _remove = remove;
-        IsArray = field.TemplateField.IsArray;
         IsVectorContainer = field.TemplateField.Type == "vector"
             && field.Children.Count == 1
             && field.Children[0].TemplateField.IsArray;
+        _arrayField = IsVectorContainer
+            ? field.Children[0]
+            : field.TemplateField.IsArray ? field : null;
+        IsArray = _arrayField is not null;
         if (isArrayItem)
             ActionCommand = new RelayCommand(() => _remove?.Invoke());
 
@@ -238,54 +201,44 @@ public sealed class PropertyViewModel : ViewModelBase
             (Minimum, Maximum) = GetNumericBounds(field.TemplateField.ValueType);
         }
 
-        if (!IsByteArray)
+        if (IsArray)
+        {
+            if (IsByteArray)
+                Children.Add(new PropertyViewModel(this, ByteArrayPreview.Instance));
+            else
+            {
+                for (var index = 0; index < _arrayField!.Children.Count; index++)
+                    Children.Add(CreateArrayElement(_arrayField.Children[index], index));
+
+                Children.Add(new PropertyViewModel(this));
+            }
+        }
+        else
         {
             for (var index = 0; index < field.Children.Count; index++)
                 Children.Add(CreateChild(field.Children[index], index));
         }
 
         Children.CollectionChanged += OnChildrenChanged;
-        RebuildTreeChildren();
-
-        if (IsVectorContainer)
-        {
-            Children[0]._vectorParent = this;
-        }
-    }
-
-    private PropertyViewModel(PropertyViewModel owner, int index)
-    {
-        BaseName = string.Empty;
-        TypeName = "UInt8";
-        _save = owner._save;
-        _byteArrayOwner = owner;
-        ByteIndex = index;
-        IsArrayItem = true;
-        ActionCommand = new RelayCommand(() => _byteArrayOwner.RemoveArrayElement(ByteIndex));
-        Minimum = byte.MinValue;
-        Maximum = byte.MaxValue;
-        _numberValue = owner._field!.AsByteArray[index];
-        _byteHexValue = ((byte)_numberValue.Value).ToString("X2", CultureInfo.InvariantCulture);
-    }
-
-    private PropertyViewModel(PropertyViewModel owner, bool isLoadMore = false)
-    {
-        BaseName = string.Empty;
-        TypeName = string.Empty;
-        _save = owner._save;
-        IsArrayAction = !isLoadMore;
-        IsLoadMoreAction = isLoadMore;
-        ActionCommand = new RelayCommand(isLoadMore ? owner.LoadMoreBytes : owner.AddArrayElement);
     }
 
     private PropertyViewModel(PropertyViewModel owner, ByteArrayPreview _)
     {
         BaseName = "Hex";
         TypeName = "Hexadecimal";
-        _field = owner._field;
+        _field = owner._arrayField;
         _save = owner._save;
         _byteArrayOwner = owner;
         IsByteArrayPreview = true;
+    }
+
+    private PropertyViewModel(PropertyViewModel owner)
+    {
+        BaseName = string.Empty;
+        TypeName = string.Empty;
+        _save = owner._save;
+        IsArrayAction = true;
+        ActionCommand = new RelayCommand(owner.AddArrayElement);
     }
 
     private PropertyViewModel CreateChild(AssetTypeValueField childField, int index)
@@ -293,22 +246,20 @@ public sealed class PropertyViewModel : ViewModelBase
         if (!IsArray)
             return new PropertyViewModel(childField.TemplateField.Name, childField, _save);
 
-        return new PropertyViewModel($"[{index}]", childField, _save, true, () => RemoveArrayElement(childField));
+        return CreateArrayElement(childField, index);
     }
 
-    private PropertyViewModel CreateByteElement(int index)
+    private PropertyViewModel CreateArrayElement(AssetTypeValueField childField, int index)
     {
-        return new PropertyViewModel(this, index);
+        return new PropertyViewModel($"[{index}]", childField, _save, true, () => RemoveArrayElement(childField));
     }
 
     private void OnChildrenChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (_batchingChildren)
-            return;
-
-        if (!IsByteArray)
+        if (IsArray && !IsByteArray)
         {
-            for (var index = 0; index < Children.Count; index++)
+            var itemCount = Children.Count - (Children.Count > 0 && Children[^1].IsArrayAction ? 1 : 0);
+            for (var index = 0; index < itemCount; index++)
             {
                 Children[index]._arrayIndex = index;
                 Children[index].OnPropertyChanged(nameof(Name));
@@ -317,45 +268,11 @@ public sealed class PropertyViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(Name));
         OnPropertyChanged(nameof(ArrayCount));
-        RebuildTreeChildren();
-        _vectorParent?.OnVectorChildrenChanged();
-    }
-
-    private void OnVectorChildrenChanged()
-    {
-        OnPropertyChanged(nameof(Name));
-        OnPropertyChanged(nameof(ArrayCount));
-        RebuildTreeChildren();
-    }
-
-    private void RebuildTreeChildren()
-    {
-        TreeChildren.Clear();
-
-        if (IsByteArray)
-        {
-            TreeChildren.Add(new PropertyViewModel(this, ByteArrayPreview.Instance));
-            return;
-        }
-
-        if (IsVectorContainer)
-        {
-            var array = Children[0];
-            foreach (var item in array.Children)
-                TreeChildren.Add(item);
-            array.AddArrayActions(TreeChildren);
-            return;
-        }
-
-        foreach (var child in Children)
-            TreeChildren.Add(child);
-
-        AddArrayActions(TreeChildren);
     }
 
     private string GetByteArrayPreview()
     {
-        var bytes = _field!.AsByteArray;
+        var bytes = _byteArrayOwner!._arrayField!.AsByteArray;
         var length = Math.Min(bytes.Length, BytePreviewLength);
         var preview = string.Join(" ", bytes.Take(length).Select(value => value.ToString("X2", CultureInfo.InvariantCulture)));
         return bytes.Length > length
@@ -363,136 +280,44 @@ public sealed class PropertyViewModel : ViewModelBase
             : preview;
     }
 
-    private void AddArrayActions(ObservableCollection<PropertyViewModel> target)
-    {
-        if (IsArray && !IsByteArray)
-        {
-            target.Add(new PropertyViewModel(this));
-        }
-    }
-
     private void AddArrayElement()
     {
-        if (IsByteArray)
-        {
-            var bytes = _field!.AsByteArray;
-            Array.Resize(ref bytes, bytes.Length + 1);
-            _field.AsByteArray = bytes;
-            Children.Add(CreateByteElement(bytes.Length - 1));
-            if (_loadedByteCount == bytes.Length - 1)
-                _loadedByteCount++;
-            OnPropertyChanged(nameof(ArrayCount));
-            OnPropertyChanged(nameof(Name));
-            RebuildTreeChildren();
-        }
-        else
-        {
-            var elementTemplate = _field!.TemplateField.Children[1];
-            var element = CreateEmptyField(elementTemplate);
-            _field.Children.Add(element);
-            Children.Add(CreateChild(element, Children.Count));
-            UpdateArraySize();
-        }
-
+        var elementTemplate = _arrayField!.TemplateField.Children[1];
+        var element = CreateEmptyField(elementTemplate);
+        var index = _arrayField.Children.Count;
+        _arrayField.Children.Add(element);
+        Children.Insert(index, CreateArrayElement(element, index));
+        UpdateArraySize();
         _save();
     }
 
     private void RemoveArrayElement(AssetTypeValueField childField)
     {
-        var index = _field!.Children.IndexOf(childField);
+        var index = _arrayField!.Children.IndexOf(childField);
         if (index >= 0)
             RemoveArrayElement(index);
     }
 
     private void RemoveArrayElement(int index)
     {
-        if (IsByteArray)
-        {
-            var oldBytes = _field!.AsByteArray;
-            if (index < 0 || index >= oldBytes.Length)
-                return;
-
-            var bytes = new byte[oldBytes.Length - 1];
-            Array.Copy(oldBytes, 0, bytes, 0, index);
-            Array.Copy(oldBytes, index + 1, bytes, index, oldBytes.Length - index - 1);
-            _field.AsByteArray = bytes;
-            if (index < _loadedByteCount)
-                _loadedByteCount--;
-
-            var removedItem = Children.FirstOrDefault(child => child.ByteIndex == index);
-            if (removedItem is not null)
-                Children.Remove(removedItem);
-
-            foreach (var child in Children.Where(child => child.ByteIndex > index))
-            {
-                child.ByteIndex--;
-                child._numberValue = bytes[child.ByteIndex];
-                child.OnPropertyChanged(nameof(Name));
-                child.OnPropertyChanged(nameof(NumberValue));
-            }
-
-            OnPropertyChanged(nameof(ArrayCount));
-            OnPropertyChanged(nameof(Name));
-            RebuildTreeChildren();
-            _save();
+        if (index < 0 || index >= _arrayField!.Children.Count)
             return;
-        }
-        else
-        {
-            if (index < 0 || index >= _field!.Children.Count)
-                return;
 
-            _field.Children.RemoveAt(index);
-            UpdateArraySize();
-        }
-
+        _arrayField.Children.RemoveAt(index);
+        UpdateArraySize();
         Children.RemoveAt(index);
-        _save();
-    }
-
-    private void LoadMoreBytes()
-    {
-        var bytes = _field!.AsByteArray;
-        var nextLimit = Math.Min(bytes.Length, _loadedByteCount + BytePageSize);
-        _batchingChildren = true;
-        try
-        {
-            for (var index = _loadedByteCount; index < nextLimit; index++)
-                Children.Add(CreateByteElement(index));
-
-            _loadedByteCount = nextLimit;
-        }
-        finally
-        {
-            _batchingChildren = false;
-        }
-
-        OnChildrenChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-    }
-
-    private void SetByte(int index, byte value)
-    {
-        var bytes = _field!.AsByteArray;
-        if (index < 0 || index >= bytes.Length)
-            return;
-
-        bytes[index] = value;
-        _field.AsByteArray = bytes;
         _save();
     }
 
     private void UpdateArraySize()
     {
-        var arrayInfo = _field!.Value.AsArray;
-        arrayInfo.size = _field.Children.Count;
-        _field.Value.AsArray = arrayInfo;
+        var arrayInfo = _arrayField!.Value.AsArray;
+        arrayInfo.size = _arrayField.Children.Count;
+        _arrayField.Value.AsArray = arrayInfo;
     }
 
     private decimal GetNumericValue()
     {
-        if (_byteArrayOwner is not null)
-            return _byteArrayOwner._field!.AsByteArray[ByteIndex];
-
         return ValueType switch
         {
             AssetValueType.Int8 => _field!.Value.AsSByte,

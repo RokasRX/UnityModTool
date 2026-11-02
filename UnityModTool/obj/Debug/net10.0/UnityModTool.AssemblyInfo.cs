@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UnityModTool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7bed32914785ee0c1f93458442f2553ade01f8cb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+90b93fe78d52bdc2adbb68c05872a61aa1ed6533")]
 [assembly: System.Reflection.AssemblyProductAttribute("UnityModTool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UnityModTool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

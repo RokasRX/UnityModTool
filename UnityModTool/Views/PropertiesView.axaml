@@ -10,7 +10,7 @@
         <TreeView Grid.Row="1"
                   ItemsSource="{Binding Properties}">
             <TreeView.ItemTemplate>
-                <TreeDataTemplate DataType="vm:PropertyViewModel" ItemsSource="{Binding TreeChildren}">
+                <TreeDataTemplate DataType="vm:PropertyViewModel" ItemsSource="{Binding Children}">
                     <Grid MinWidth="320">
                         <Grid ColumnDefinitions="2*, 3*, Auto"
                               IsVisible="{Binding IsPropertyRow}">
