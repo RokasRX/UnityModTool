@@ -12,13 +12,13 @@ public static class AssetFileReader
 {
     public static bool IsAssetsFileOpened(ObservableCollection<AssetsFileViewModel> files, string filePath)
     {
-        return files.Any(f => f.FilePath == filePath);
+        return files.Any(f => f.OriginalFilePath == filePath || f.FilePath == filePath);
     }
 
     public static AssetsFileViewModel OpenAssetsFile(AssetsManager manager, string filePath)
     {
         var assetsFileInstance = manager.LoadAssetsFile(filePath, false);
-        return new AssetsFileViewModel(filePath, assetsFileInstance);
+        return new AssetsFileViewModel(filePath, assetsFileInstance, manager);
     }
 
     public static List<ComponentViewModel> GetComponents(AssetsFile assetsFile)
@@ -36,16 +36,17 @@ public static class AssetFileReader
     {
         manager.LoadClassDatabaseFromPackage(assetsFileInstance.file.Metadata.UnityVersion);
         var root = manager.GetBaseField(assetsFileInstance, component.AssetFileInfo);
+        component.SetData(root);
         return root.Children
-            .Select(child => CreateProperty(child, root, component))
+            .Select(child => CreateProperty(child, component))
             .ToList();
     }
 
-    private static PropertyViewModel CreateProperty(AssetTypeValueField field, AssetTypeValueField root, ComponentViewModel component)
+    private static PropertyViewModel CreateProperty(AssetTypeValueField field, ComponentViewModel component)
     {
         return new PropertyViewModel(
             field.TemplateField.Name,
             field,
-            () => component.AssetFileInfo.SetNewData(root));
+            component.MarkModified);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,6 +19,20 @@ public sealed partial class ComponentPropertiesViewModel : Tool
     [ObservableProperty]
     private ComponentViewModel? selectedComponent;
 
+    private string? propertiesError;
+
+    public string? PropertiesError
+    {
+        get => propertiesError;
+        private set
+        {
+            if (SetProperty(ref propertiesError, value))
+                OnPropertyChanged(nameof(HasPropertiesError));
+        }
+    }
+
+    public bool HasPropertiesError => PropertiesError is not null;
+
     public ComponentPropertiesViewModel(AssetWorkspace assetWorkspace, SceneHierarchyViewModel sceneHierarchyViewModel)
     {
         _assetWorkspace = assetWorkspace;
@@ -27,27 +42,48 @@ public sealed partial class ComponentPropertiesViewModel : Tool
         {
             if (e.PropertyName == nameof(SceneHierarchyViewModel.SelectedComponent))
             {
+                if (SelectedComponent is not null)
+                    SelectedComponent.DataReplaced -= OnSelectedComponentDataReplaced;
+
                 SelectedComponent = _sceneHierarchyViewModel.SelectedComponent;
+                if (SelectedComponent is not null)
+                    SelectedComponent.DataReplaced += OnSelectedComponentDataReplaced;
+
                 RefreshProperties();
             }
         };
 
         SelectedComponent = _sceneHierarchyViewModel.SelectedComponent;
+        if (SelectedComponent is not null)
+            SelectedComponent.DataReplaced += OnSelectedComponentDataReplaced;
+        RefreshProperties();
+    }
+
+    private void OnSelectedComponentDataReplaced(object? sender, EventArgs e)
+    {
         RefreshProperties();
     }
 
     private void RefreshProperties()
     {
         Properties.Clear();
+        PropertiesError = null;
 
         if (SelectedComponent is { } component
             && _sceneHierarchyViewModel.SelectedFile is { } file)
         {
-            foreach (var property in GetProperties(
-                         _assetWorkspace.Manager,
-                         file.AssetsFileInstance,
-                         component))
-                Properties.Add(property);
+            try
+            {
+                foreach (var property in GetProperties(
+                             _assetWorkspace.Manager,
+                             file.AssetsFileInstance,
+                             component))
+                    Properties.Add(property);
+            }
+            catch (Exception exception)
+            {
+                PropertiesError = $"Could not read component properties: {exception.Message}";
+            }
         }
     }
 }

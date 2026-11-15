@@ -3,14 +3,32 @@
              xmlns:vm="using:UnityModTool.ViewModels"
              x:Class="UnityModTool.Views.SceneHierarchyView"
              x:DataType="vm:SceneHierarchyViewModel">
-    <ListBox ItemsSource="{Binding Components}" SelectedItem="{Binding SelectedComponent, Mode=TwoWay}">
-        <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="vm:ComponentViewModel">
-                <Grid ColumnDefinitions="*, *">
-                    <TextBlock Text="{Binding Name}"/>
-                    <TextBlock Text="{Binding PathID}" Grid.Column="1" TextAlignment="Right" />
-                </Grid>
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+    <Grid RowDefinitions="*,Auto">
+        <ListBox x:Name="ComponentsList"
+                 ItemsSource="{Binding Components}"
+                 SelectedItem="{Binding SelectedComponent, Mode=TwoWay}"
+                 DragDrop.AllowDrop="True">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:ComponentViewModel">
+                    <Grid ColumnDefinitions="*, *"
+                          Background="Transparent">
+                        <Grid.ContextMenu>
+                            <ContextMenu DataContext="{Binding}">
+                                <MenuItem Header="Export bytes..."
+                                          Click="OnExportBytesClick" />
+                            </ContextMenu>
+                        </Grid.ContextMenu>
+                        <TextBlock Text="{Binding Name}" />
+                        <TextBlock Text="{Binding PathID}" Grid.Column="1" TextAlignment="Right" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <TextBlock Grid.Row="1"
+                   Text="{Binding ComponentActionError}"
+                   IsVisible="{Binding HasComponentActionError}"
+                   TextWrapping="Wrap"
+                   Margin="6"
+                   Foreground="Red" />
+    </Grid>
 </UserControl>

@@ -4,6 +4,7 @@
              x:Class="UnityModTool.Views.OpenFilesView"
              x:DataType="vm:OpenFilesViewModel">
     <Grid x:Name="DropTarget"
+          RowDefinitions="*,Auto"
           Background="Transparent"
           DragDrop.AllowDrop="True">
         <ListBox ItemsSource="{Binding Files}"
@@ -11,9 +12,24 @@
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:AssetsFileViewModel">
                     <TextBlock Text="{Binding Name}"
-                               ToolTip.Tip="{Binding FilePath}"/>
+                               ToolTip.Tip="{Binding FilePath}">
+                        <TextBlock.ContextMenu>
+                            <ContextMenu DataContext="{Binding}">
+                                <MenuItem Header="Save"
+                                          Click="OnSaveClick" />
+                                <MenuItem Header="Save As..."
+                                          Click="OnSaveAsClick" />
+                            </ContextMenu>
+                        </TextBlock.ContextMenu>
+                    </TextBlock>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        <TextBlock Grid.Row="1"
+                   Text="{Binding SaveError}"
+                   IsVisible="{Binding HasSaveError}"
+                   TextWrapping="Wrap"
+                   Margin="6"
+                   Foreground="Red" />
     </Grid>
 </UserControl>

@@ -3,11 +3,17 @@
              xmlns:vm="using:UnityModTool.ViewModels"
              x:Class="UnityModTool.Views.PropertiesView"
              x:DataType="vm:ComponentPropertiesViewModel">
-    <Grid RowDefinitions="Auto, *">
+    <Grid RowDefinitions="Auto, Auto, *">
         <TextBlock Text="{Binding SelectedComponent.Name}"
                    FontWeight="SemiBold"
                    Margin="8,6" />
-        <TreeView Grid.Row="1"
+        <TextBlock Grid.Row="1"
+                   Text="{Binding PropertiesError}"
+                   IsVisible="{Binding HasPropertiesError}"
+                   TextWrapping="Wrap"
+                   Margin="8,0"
+                   Foreground="Red" />
+        <TreeView Grid.Row="2"
                   ItemsSource="{Binding Properties}">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="vm:PropertyViewModel" ItemsSource="{Binding Children}">
