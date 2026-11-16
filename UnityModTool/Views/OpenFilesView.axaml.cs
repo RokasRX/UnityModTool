@@ -49,7 +49,22 @@ public partial class OpenFilesView : UserControl
             }
             else if (Directory.Exists(path))
             {
-                filesToOpen.AddRange(Directory.EnumerateFiles(path));
+                try
+                {
+                    filesToOpen.AddRange(Directory.EnumerateFiles(
+                        path,
+                        "*",
+                        new EnumerationOptions
+                        {
+                            RecurseSubdirectories = true,
+                            IgnoreInaccessible = true,
+                            AttributesToSkip = FileAttributes.ReparsePoint
+                        }));
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
+                {
+                    // Keep any files enumerated before an inaccessible directory was encountered.
+                }
             }
         }
 

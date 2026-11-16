@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
@@ -15,10 +16,32 @@ public static class AssetFileReader
         return files.Any(f => f.OriginalFilePath == filePath || f.FilePath == filePath);
     }
 
-    public static AssetsFileViewModel OpenAssetsFile(AssetsManager manager, string filePath)
+    public static AssetsFileViewModel? TryOpenAssetsFile(AssetsManager manager, string filePath)
     {
-        var assetsFileInstance = manager.LoadAssetsFile(filePath, false);
-        return new AssetsFileViewModel(filePath, assetsFileInstance, manager);
+        try
+        {
+            if (!AssetsFile.IsAssetsFile(filePath))
+                return null;
+
+            var assetsFileInstance = manager.LoadAssetsFile(filePath, false);
+            return new AssetsFileViewModel(filePath, assetsFileInstance, manager);
+        }
+        catch (Exception exception) when (IsInvalidAssetsFileException(exception))
+        {
+            return null;
+        }
+    }
+
+    private static bool IsInvalidAssetsFileException(Exception exception)
+    {
+        return exception is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or InvalidDataException
+            or FormatException
+            or IndexOutOfRangeException
+            or OverflowException
+            or NullReferenceException;
     }
 
     public static List<ComponentViewModel> GetComponents(AssetsFile assetsFile)

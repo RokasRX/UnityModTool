@@ -44,7 +44,8 @@ public sealed partial class OpenFilesViewModel : Tool
         {
             if (!IsAssetsFileOpened(Files, filePath))
             {
-                Files.Add(OpenAssetsFile(_assetWorkspace.Manager, filePath));
+                if (TryOpenAssetsFile(_assetWorkspace.Manager, filePath) is { } file)
+                    Files.Add(file);
             }
         }
     }
