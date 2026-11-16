@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using AssetsTools.NET.Extra;
 
 namespace UnityModTool.AssetHandling;
@@ -9,7 +10,7 @@ public sealed class AssetWorkspace : IDisposable
 
     public AssetWorkspace()
     {
-        Manager.LoadClassPackage("classdata.tpk");
+        Manager.LoadClassPackage(Path.Combine(AppContext.BaseDirectory, "classdata.tpk"));
     }
 
     public void Dispose()
